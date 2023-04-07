@@ -12,18 +12,15 @@ def solution(p: float, x: np.array) -> tuple:
     # Не меняйте название функции и её аргументы
     if not 0 <= p <= 1:
         raise ValueError("Confidence level must be between 0 and 1")
-
-    def acceleration_coef(x):
-        t = 47
-        return 2 * x / (t ** 2)
-
-    n_bootstraps = 10000
-    bootstrap_samples = np.random.choice(x, size=(len(x), n_bootstraps), replace=True)
-
-    acceleration_coefs = acceleration_coef(bootstrap_samples)
+    sample_mean = np.mean(x)
+    sample_std = np.std(x, ddof=1)
 
     alpha = 1 - p
-    left_boundary = np.percentile(acceleration_coefs, alpha / 2 * 100)
-    right_boundary = np.percentile(acceleration_coefs, (1 - alpha / 2) * 100)
+    dof = len(x) - 1
+    critical_value = norm.ppf(1 - alpha / 2)
+    margin_of_error = critical_value * sample_std / np.sqrt(len(x))
 
-    return left_boundary, right_boundary
+    left_boundary = sample_mean - margin_of_error
+    right_boundary = sample_mean + margin_of_error
+
+    return left_boundary, right_boundary 
