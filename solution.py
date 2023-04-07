@@ -10,7 +10,17 @@ def solution(p: float, x: np.array) -> tuple:
     # Измените код этой функции
     # Это будет вашим решением
     # Не меняйте название функции и её аргументы
+    if not 0 <= p <= 1:
+        raise ValueError("Confidence level must be between 0 and 1")
+    sample_mean = np.mean(x)
+    sample_std = np.std(x, ddof=1)
+
     alpha = 1 - p
-    loc = x.mean()
-    scale = np.sqrt(np.var(x)) / np.sqrt(len(x))
-    return loc - scale * norm.ppf(alpha / 2), loc + scale * norm.ppf(1 - alpha / 2)
+    dof = len(x) - 1
+    critical_value = norm.ppf(1 - alpha / 2)
+    margin_of_error = critical_value * sample_std / np.sqrt(len(x))
+
+    left_boundary = sample_mean - margin_of_error
+    right_boundary = sample_mean + margin_of_error
+
+    return left_boundary, right_boundary
